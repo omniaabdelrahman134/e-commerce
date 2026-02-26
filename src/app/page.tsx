@@ -1,65 +1,66 @@
-import Image from "next/image";
+import img1 from '@/assets/images/slider-image-1.jpeg';
+import img2 from '@/assets/images/slider-image-2.jpeg';
+import img3 from '@/assets/images/slider-image-3.jpeg';
+import CategorySlider from './_components/categorySlider/CategorySlider';
+import ProductCard from './_components/ProductCard/productCard';
+import Slider from './_components/Slider/slider';
+import { getAllCategories } from './_services/category.servoce';
+import { getAllProducts } from './_services/products.service';
+import { ProductType } from './_types/products.type';
 
-export default function Home() {
+const images = [img1.src, img2.src, img3.src];
+
+export default async function Home() {
+  const allCategories: Array<{ image: string }> = (await getAllCategories()) || [];
+  const getProducts = await getAllProducts('');
+
+  if (!getProducts) {
+    return (
+      <h1 className="text-3xl font-bold text-center my-24 animate-fadeIn">
+        No Products Found
+      </h1>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="space-y-16 px-5 md:px-10">
+      {/* Hero Slider Section */}
+      <div className="animate-fadeInDown mt-5">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 text-center mb-6">
+          Welcome to <span className="text-green-500">FreshCart</span>
+        </h1>
+        <p className="text-center text-gray-600 mb-10">
+          Discover the best products from top brands and categories
+        </p>
+        <Slider images={images} />
+      </div>
+
+      {/* Categories Section */}
+      <div className="animate-fadeInUp">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center relative before:absolute before:-bottom-2 before:left-1/2 before:-translate-x-1/2 before:w-20 before:h-1 before:rounded-full before:bg-green-500">
+          Explore <span className="text-green-500">Categories</span>
+        </h2>
+        <CategorySlider
+          allCategories={allCategories?.map((category) => category.image) || []}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+      </div>
+
+      {/* Products Section */}
+      <div className="animate-fadeInUp">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center relative before:absolute before:-bottom-2 before:left-1/2 before:-translate-x-1/2 before:w-20 before:h-1 before:rounded-full before:bg-green-500">
+          Our <span className="text-green-500">Products</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {getProducts.map((product: ProductType) => (
+            <div
+              key={product.id}
+              className="transform transition duration-500 hover:scale-105 hover:shadow-xl"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <ProductCard product={product} />
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
