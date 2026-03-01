@@ -9,13 +9,16 @@ import { WishlistType } from '../_types/carrt-types/cartTypes';
 import { Button } from '@/components/ui/button';
 import AddToCartBtn from '../_components/ProductCard/AddToCartBtn';
 import { WishlistSkeleton } from './wishlistLoading';
-
-
+import { Spinner } from '@/components/ui/spinner';
 
 export default function Wishlist() {
   const queryClient = useQueryClient();
 
-  const { data: wishListData, isLoading, isError } = useQuery<WishlistType>({
+  const {
+    data: wishListData,
+    isLoading,
+    isError,
+  } = useQuery<WishlistType>({
     queryKey: ['Get-list'],
     queryFn: async () => {
       const res = await fetch(`/api/wishlist`);
@@ -24,7 +27,7 @@ export default function Wishlist() {
     },
   });
 
-  const { mutate: delCart } = useMutation({
+  const { mutate: delCart, isPending: DeletePending } = useMutation({
     mutationFn: DeleteListItem,
     onSuccess: () => {
       toast.success('Item removed from WishList');
@@ -34,7 +37,10 @@ export default function Wishlist() {
   });
 
   if (isLoading) return <WishlistSkeleton />;
-  if (isError) return <p className="text-red-500 text-center mt-10">Failed to load wishlist.</p>;
+  if (isError)
+    return (
+      <p className="text-red-500 text-center mt-10">Failed to load wishlist.</p>
+    );
   if (!wishListData) return null;
 
   if (wishListData?.count === 0)
@@ -74,16 +80,20 @@ export default function Wishlist() {
                     className="object-contain rounded-md"
                   />
                 </td>
-                <td className="px-6 py-4 font-semibold text-gray-800">{item.title}</td>
-                <td className="px-6 py-4 font-semibold text-gray-800">{item.price} EGP</td>
+                <td className="px-6 py-4 font-semibold text-gray-800">
+                  {item.title}
+                </td>
+                <td className="px-6 py-4 font-semibold text-gray-800">
+                  {item.price} EGP
+                </td>
                 <td className="px-6 py-4 flex flex-col gap-2">
                   <Button
-                    className="bg-green-400 hover:bg-green-500"
+                    className="bg-green-400 cursor-pointer hover:bg-green-500"
                     onClick={() => delCart(item._id)}
                   >
-                    Remove
+                    {DeletePending ? <Spinner /> : 'Remove'}
                   </Button>
-                  <AddToCartBtn productId={item._id} />
+                  <AddToCartBtn productId={item._id} fullWidth />
                 </td>
               </tr>
             ))}

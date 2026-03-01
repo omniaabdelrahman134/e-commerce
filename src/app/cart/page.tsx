@@ -11,6 +11,7 @@ import Image from 'next/image';
 import CheckoutBtn from '../_components/checkout/checkout';
 import { Button } from '@/components/ui/button';
 import CartSkeleton from './cartloading';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function Cart() {
   const queryClient = useQueryClient();
@@ -27,7 +28,7 @@ export default function Cart() {
     },
   });
 
-  const { mutate: delCart } = useMutation({
+  const { mutate: delCart, isPending: DeletePending } = useMutation({
     mutationFn: DeleteCartItem,
     onSuccess: () => {
       toast.success('Item removed from cart');
@@ -36,7 +37,7 @@ export default function Cart() {
     onError: () => toast.error('Failed to remove item from cart'),
   });
 
-  const { mutate: clearCart } = useMutation({
+  const { mutate: clearCart, isPending: ClearPending } = useMutation({
     mutationFn: ClearCart,
     onSuccess: () => {
       toast.success('Cart cleared');
@@ -45,7 +46,7 @@ export default function Cart() {
     onError: () => toast.error('Failed to clear cart'),
   });
 
-  const { mutate: updateCart } = useMutation({
+  const { mutate: updateCart, isPending: UpdatePending } = useMutation({
     mutationFn: UpdateCartItem,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Get-cart'] }),
   });
@@ -54,8 +55,13 @@ export default function Cart() {
     if (count > 0) updateCart({ productId, count });
   }
 
-if (isLoading) return <CartSkeleton />;
-  if (isError) return <h2 className="text-center mt-24 text-xl text-red-500">Error Loading Cart</h2>;
+  if (isLoading) return <CartSkeleton />;
+  if (isError)
+    return (
+      <h2 className="text-center mt-24 text-xl text-red-500">
+        Error Loading Cart
+      </h2>
+    );
   if (!cartData) return null;
 
   return (
@@ -85,32 +91,43 @@ if (isLoading) return <CartSkeleton />;
                         className="rounded-lg object-contain"
                       />
                     </td>
-                    <td className="px-4 py-3 font-semibold">{item.product.title}</td>
+                    <td className="px-4 py-3 font-semibold">
+                      {item.product.title}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Button
+                          className="cursor-pointer bg-green-400 hover:bg-green-500"
                           size="sm"
-                          onClick={() => handleUpdateCart(item.product._id, item.count - 1)}
+                          onClick={() =>
+                            handleUpdateCart(item.product._id, item.count - 1)
+                          }
                         >
-                          -
+                          {UpdatePending ? <Spinner /> : '-'}
                         </Button>
                         <span className="px-2">{item.count}</span>
                         <Button
+                          className="cursor-pointer bg-green-400 hover:bg-green-500"
                           size="sm"
-                          onClick={() => handleUpdateCart(item.product._id, item.count + 1)}
+                          onClick={() =>
+                            handleUpdateCart(item.product._id, item.count + 1)
+                          }
                         >
-                          +
+                          {UpdatePending ? <Spinner /> : '+'}
                         </Button>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-bold text-green-600">{item.price} EGP</td>
+                    <td className="px-4 py-3 font-bold text-green-600">
+                      {item.price} EGP
+                    </td>
                     <td className="px-4 py-3">
                       <Button
+                        className="cursor-pointer bg-red-500 hover:bg-red-600"
                         variant="destructive"
                         size="sm"
                         onClick={() => delCart(item.product._id)}
                       >
-                        Remove
+                        {DeletePending ? <Spinner /> : 'Remove'}
                       </Button>
                     </td>
                   </tr>
@@ -130,8 +147,11 @@ if (isLoading) return <CartSkeleton />;
               <span>Total Price:</span>
               <span>{cartData.data.totalCartPrice ?? 0} EGP</span>
             </div>
-            <Button className="bg-green-500 hover:bg-green-600 w-full" onClick={() => clearCart()}>
-              Clear Cart
+            <Button
+              className="bg-green-400 hover:bg-green-500 cursor-pointer w-full"
+              onClick={() => clearCart()}
+            >
+              {ClearPending ? <Spinner /> : 'Clear Cart'}
             </Button>
             <CheckoutBtn cartId={cartData.cartId} />
           </div>
@@ -139,7 +159,9 @@ if (isLoading) return <CartSkeleton />;
       ) : (
         <div className="flex flex-col justify-center items-center gap-4 my-20">
           <h2 className="font-bold text-3xl">Your Cart is Empty!</h2>
-          <h3 className="font-semibold text-xl">Add some products to get started</h3>
+          <h3 className="font-semibold text-xl">
+            Add some products to get started
+          </h3>
           <Image src={cartImg} alt="empty cart" width={200} height={200} />
         </div>
       )}

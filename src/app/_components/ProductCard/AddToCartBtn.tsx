@@ -45,7 +45,7 @@ export default function AddToCartBtn({
     <Button
       onClick={handleClick}
       disabled={disabled || isPending}
-      className={`bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-all duration-200 ${
+      className={`bg-green-400 hover:bg-green-500 cursor-pointer text-white font-semibold rounded-lg transition-all duration-200 ${
         fullWidth ? 'w-full' : 'w-3/4'
       } py-2 px-4 flex justify-center items-center`}
     >

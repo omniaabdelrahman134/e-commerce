@@ -1,7 +1,7 @@
 'use server';
 import { getToken } from '../getToken';
 
-export default async function AddToCart(productId: string) {
+export default async function AddToWishlistw(productId: string) {
   const token = await getToken();
 
   const response = await fetch(

@@ -1,4 +1,3 @@
-'use client';
 
 import AddToCartBtn from '@/app/_components/ProductCard/AddToCartBtn';
 import { getAllProducts } from '@/app/_services/products.service';

@@ -99,6 +99,7 @@ export default function CheckoutBtn({ cartId }: { cartId: string }) {
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
               <Button
+              className='bg-green-400 hover:bg-green-500'
                 type="submit"
                 disabled={isLoading}
                 onClick={() => chekOutFnOnline()}
@@ -107,6 +108,7 @@ export default function CheckoutBtn({ cartId }: { cartId: string }) {
                 Pay With Visa !
               </Button>
               <Button
+              className='bg-green-400 hover:bg-green-500'
                 type="submit"
                 disabled={isPending}
                 onClick={() => chekOutFnCash()}
