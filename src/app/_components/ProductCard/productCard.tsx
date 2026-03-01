@@ -62,7 +62,7 @@ export default function ProductCard({ product }: Props) {
       </Link>
 
       {/* Actions */}
-      <div className="flex gap-3 items-center mt-3">
+      <div className="flex items-center justify-between gap-3 mt-3">
         <AddToCartBtn productId={product.id} />
         <AddToWishlistBtn productId={product.id} />
       </div>
