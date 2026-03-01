@@ -62,8 +62,8 @@ export default function ProductCard({ product }: Props) {
       </Link>
 
       {/* Actions */}
-      <div className="flex gap-3 mt-3">
-        <AddToCartBtn productId={product.id} fullWidth />
+      <div className="flex gap-3 items-center mt-3">
+        <AddToCartBtn productId={product.id} />
         <AddToWishlistBtn productId={product.id} />
       </div>
     </div>
