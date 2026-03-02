@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CartType } from '../_types/carrt-types/cartTypes';
 import DeleteCartItem from '../_services/card-services/DeleteCart';
@@ -16,6 +17,10 @@ import { Spinner } from '@/components/ui/spinner';
 export default function Cart() {
   const queryClient = useQueryClient();
 
+  // 🔥 states for specific loading buttons
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const {
     data: cartData,
     isLoading,
@@ -28,16 +33,24 @@ export default function Cart() {
     },
   });
 
-  const { mutate: delCart, isPending: DeletePending } = useMutation({
+  // 🗑 Delete Item
+  const { mutate: delCart } = useMutation({
     mutationFn: DeleteCartItem,
+    onMutate: (productId: string) => {
+      setDeletingId(productId);
+    },
     onSuccess: () => {
       toast.success('Item removed from cart');
       queryClient.invalidateQueries({ queryKey: ['Get-cart'] });
     },
+    onSettled: () => {
+      setDeletingId(null);
+    },
     onError: () => toast.error('Failed to remove item from cart'),
   });
 
-  const { mutate: clearCart, isPending: ClearPending } = useMutation({
+  // 🧹 Clear Cart
+  const { mutate: clearCart, isPending: clearPending } = useMutation({
     mutationFn: ClearCart,
     onSuccess: () => {
       toast.success('Cart cleared');
@@ -46,13 +59,24 @@ export default function Cart() {
     onError: () => toast.error('Failed to clear cart'),
   });
 
-  const { mutate: updateCart, isPending: UpdatePending } = useMutation({
+  // 🔄 Update Item Count
+  const { mutate: updateCart } = useMutation({
     mutationFn: UpdateCartItem,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Get-cart'] }),
+    onMutate: (variables: { productId: string; count: number }) => {
+      setUpdatingId(variables.productId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['Get-cart'] });
+    },
+    onSettled: () => {
+      setUpdatingId(null);
+    },
   });
 
   function handleUpdateCart(productId: string, count: number) {
-    if (count > 0) updateCart({ productId, count });
+    if (count > 0) {
+      updateCart({ productId, count });
+    }
   }
 
   if (isLoading) return <CartSkeleton />;
@@ -91,43 +115,70 @@ export default function Cart() {
                         className="rounded-lg object-contain"
                       />
                     </td>
+
                     <td className="px-4 py-3 font-semibold">
                       {item.product.title}
                     </td>
+
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Button
                           className="cursor-pointer bg-green-400 hover:bg-green-500"
                           size="sm"
+                          disabled={updatingId === item.product._id}
                           onClick={() =>
-                            handleUpdateCart(item.product._id, item.count - 1)
+                            handleUpdateCart(
+                              item.product._id,
+                              item.count - 1
+                            )
                           }
                         >
-                          {UpdatePending ? <Spinner /> : '-'}
+                          {updatingId === item.product._id ? (
+                            <Spinner />
+                          ) : (
+                            '-'
+                          )}
                         </Button>
+
                         <span className="px-2">{item.count}</span>
+
                         <Button
                           className="cursor-pointer bg-green-400 hover:bg-green-500"
                           size="sm"
+                          disabled={updatingId === item.product._id}
                           onClick={() =>
-                            handleUpdateCart(item.product._id, item.count + 1)
+                            handleUpdateCart(
+                              item.product._id,
+                              item.count + 1
+                            )
                           }
                         >
-                          {UpdatePending ? <Spinner /> : '+'}
+                          {updatingId === item.product._id ? (
+                            <Spinner />
+                          ) : (
+                            '+'
+                          )}
                         </Button>
                       </div>
                     </td>
+
                     <td className="px-4 py-3 font-bold text-green-600">
                       {item.price} EGP
                     </td>
+
                     <td className="px-4 py-3">
                       <Button
                         className="cursor-pointer bg-red-500 hover:bg-red-600"
                         variant="destructive"
                         size="sm"
+                        disabled={deletingId === item.product._id}
                         onClick={() => delCart(item.product._id)}
                       >
-                        {DeletePending ? <Spinner /> : 'Remove'}
+                        {deletingId === item.product._id ? (
+                          <Spinner />
+                        ) : (
+                          'Remove'
+                        )}
                       </Button>
                     </td>
                   </tr>
@@ -138,21 +189,27 @@ export default function Cart() {
 
           {/* Order Summary */}
           <div className="w-full lg:w-1/3 bg-white shadow-md rounded-2xl p-6 flex flex-col gap-6">
-            <h2 className="text-2xl font-bold border-b pb-4">Order Summary</h2>
+            <h2 className="text-2xl font-bold border-b pb-4">
+              Order Summary
+            </h2>
+
             <div className="flex justify-between text-lg font-semibold">
               <span>Items:</span>
               <span>{cartData.numOfCartItems}</span>
             </div>
+
             <div className="flex justify-between text-lg font-semibold">
               <span>Total Price:</span>
               <span>{cartData.data.totalCartPrice ?? 0} EGP</span>
             </div>
+
             <Button
               className="bg-green-400 hover:bg-green-500 cursor-pointer w-full"
               onClick={() => clearCart()}
             >
-              {ClearPending ? <Spinner /> : 'Clear Cart'}
+              {clearPending ? <Spinner /> : 'Clear Cart'}
             </Button>
+
             <CheckoutBtn cartId={cartData.cartId} />
           </div>
         </div>

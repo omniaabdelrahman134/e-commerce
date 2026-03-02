@@ -42,7 +42,7 @@ export default function ProductCard({ product }: Props) {
               <span className="text-green-700 font-bold">{product.priceAfterDiscount}</span>
             </>
           ) : (
-            <span className="text-gray-900 font-semibold">{product.price}</span>
+            <span className="text-gray-900 font-semibold">{product.price} EGP</span>
           )}
         </div>
 

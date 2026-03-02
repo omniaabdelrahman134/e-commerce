@@ -95,7 +95,7 @@ export default function page() {
 
           <Button
             type="submit"
-            className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all duration-300"
+            className="cursor-pointer w-full py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all duration-300"
           >
             Login
           </Button>
