@@ -53,8 +53,3 @@ The application allows users to browse products, manage their cart and wishlist,
 - Global State Management
 - Feature-based folder organization
 
-## How to Run
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/fresh-cart.git
